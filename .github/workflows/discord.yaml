@@ -1,0 +1,33 @@
+name: Discord Embed Notification
+
+on:
+  push:
+  pull_request_target:
+    types: [opened, reopened, closed, edited, assigned, ready_for_review]
+  create:
+  delete:
+  workflow_dispatch:
+  issues:
+  member:
+    types: [added, removed, edited]
+  release:
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    environment: DiscordWebhook
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        
+      - name: Build and send Discord embed message
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_AVATAR_URL: https://github.com/${{ github.actor }}.png
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF_TYPE: ${{ github.event.ref_type }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node .github/workflows/discord-workflow.js
